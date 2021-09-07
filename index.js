@@ -7,7 +7,7 @@ var http = require("http");
 const client = require('twilio')('AC20cc2c5810301f9759dcccc5cc42163b', '8fd618f8f3f3b2aeb09a8918616471ce');
 const app = express();
 var server = http.createServer(app);
-var { userNumber } = require('./mongose');
+var { userNumber, CreateUser } = require('./mongose');
 
 app.use(express.json());
 app.use(cookieParser());
@@ -48,10 +48,12 @@ app.post('/UserNumber', (req, res, next) => {
             from: '+14804181704',
         }).then((message) => {
             console.log('Message :', message);
+
             res.send({
                 message: `Message Has Been Send :${message} `,
                 status: '200'
             });
+            req.body.headers = doc.PhoneNumber
         }).catch((error) => {
             console.log('Error :', error);
             res.send({
@@ -65,10 +67,32 @@ app.post('/phoneUserPassword', (req, res, next) => {
     if (!req.body.Password) {
         res.send({
             message: 'Please Required Password',
-            status:'404',
+            status: '404',
         });
+        return;
     }
-    
+    // console.log('req.body.headers', req.body.phoneNumber);
+    userNumber.findOne({ PhoneNumber: req.body.phoneNumber }, (err, user) => {
+        if (err) {
+            res.send({
+                message: 'User Number Not Found',
+                status: 404,
+            });
+        }
+        else if (user) {
+            console.log('User :', user);
+            // CreateUser.create({
+            //     'UserNumber':user.PhoneNumber,
+            
+            // }).then(() => {
+
+            // })
+        } else {
+
+        }
+    })
+
+
 })
 
 
@@ -81,6 +105,6 @@ function getRandomArbitrary(min, max) {
 
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server Started On Port`, PORT);
 });

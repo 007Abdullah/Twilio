@@ -35,6 +35,15 @@ var userNumberSchema = mongoose.Schema({
 var userNumber = mongoose.model('phoneNumber', userNumberSchema);
 
 
+var PhoneNumberCreateUser = mongoose.Schema({
+    'UserNumber': String,
+    'Password': String,
+    'createdOn': { 'type': Date, 'default': Date.now }
+})
+
+var CreateUser = mongoose.model('createUser', PhoneNumberCreateUser);
+
 module.exports = ({
     userNumber: userNumber,
+    CreateUser: CreateUser,
 });
