@@ -63,6 +63,41 @@ app.post('/UserNumber', (req, res, next) => {
         });
     });
 })
+app.post('/validOtp',(req,res,next)=>{
+    if(!req.body.otpCode){
+        res.send({
+            message:'Please Enter Valid Otp',
+            status:404,
+        })
+    }
+    userNumber.findOne({ PhoneNumber: req.body.phoneNumber }, (err, userOTP) => {
+        console.log('UserOtp Check :',userOTP.otpCode);
+        if(err){
+            res.send({
+                message:`User Error :${err}`,
+                status:404,
+            })
+        }
+        else if(userOTP){
+            if(userOTP.otpCode === req.body.otpCode){
+                res.send({
+                    message:'Valid SuccessFully',
+                    status:200,
+                })
+            }else{
+                res.send({
+                    message:'Invalid OtpCode',
+                    status:303
+                })
+            }
+        }else{
+            res.send({
+                message:'User Not Found',
+                status:404,
+            })
+        }
+    })
+})
 app.post('/phoneUserPassword', (req, res, next) => {
     if (!req.body.Password) {
         res.send({
@@ -81,29 +116,29 @@ app.post('/phoneUserPassword', (req, res, next) => {
         }
         else if (user) {
             console.log('User :', user);
-            // CreateUser.create({
-            //     'UserNumber':user.PhoneNumber,
-            
-            // }).then(() => {
-
-            // })
+            CreateUser.create({
+                'UserNumber': user.PhoneNumber,
+                'Password': req.body.Password,
+            }).then((done) => {
+                res.send({
+                    message: 'User Create Done',
+                    status: 200
+                });
+            });
         } else {
-
+            res.send({
+                message: 'User Not Found',
+                status: 404
+            })
         }
     })
 
-
 })
-
 
 
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
-
-
-
-
 
 server.listen(PORT, () => {
     console.log(`Server Started On Port`, PORT);
